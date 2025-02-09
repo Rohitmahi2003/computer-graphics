@@ -1,66 +1,81 @@
 from OpenGL.GL import *
-from OpenGL.GLUT import *
 from OpenGL.GLU import *
+from OpenGL.GLUT import *
+import sys
 import math
 
-# Ellipse parameters
-a = 100  # Semi-major axis
-b = 50   # Semi-minor axis
+WINDOW_SIZE=500
+SCALE=100
+xc=yc=0
+rx=ry=1
 
-# Initialize window dimensions
-width, height = 500, 500
+def polar_ellipse():
+	glClear(GL_COLOR_BUFFER_BIT)
+	glColor3f(1,0,0)
+	glPointSize(5)
+	glBegin(GL_POINTS)
+	global xc,yc,rx,ry
+	theta=0.0
+	while theta<=1.57:
+		x=float(rx)*math.cos(theta)
+		y=float(ry)*math.sin(theta)
+		plot_symmetric_points(x,y)
+		theta+=0.001
+	glEnd()
+	glFlush()
 
-def draw_ellipse_polar():
-    glBegin(GL_LINE_LOOP)  # Start drawing a loop of connected points
-    for angle in range(360):
-        theta = math.radians(angle)
-        x = a * math.cos(theta)
-        y = b * math.sin(theta)
-        glVertex2f(x, y)  # Plot point
-    glEnd()
+def nonpolar_ellipse():
+	glClear(GL_COLOR_BUFFER_BIT)
+	glColor3f(1,0,0)
+	glPointSize(5)
+	glBegin(GL_POINTS)
+	global xc,yc,rx,ry
+	x=0
+	while x<=rx:
+		y=ry*(math.sqrt(1-(((x*x)/(rx*rx)))))
+		plot_symmetric_points(x,y)
+		x+=0.01
+	glEnd()
+	glFlush()
 
-def draw_ellipse_parametric():
-    glBegin(GL_LINE_LOOP)  # Start drawing a loop of connected points
-    t = 0
-    step = 0.01
-    while t < 2 * math.pi:
-        x = a * math.cos(t)
-        y = b * math.sin(t)
-        glVertex2f(x, y)  # Plot point
-        t += step
-    glEnd()
-
-def display():
-    glClear(GL_COLOR_BUFFER_BIT)
-    
-    # Set up the transformation to center the ellipse
-    glLoadIdentity()
-    glTranslatef(width // 2, height // 2, 0)
-
-    # Draw ellipse using Polar Method
-    draw_ellipse_polar()
-    
-    # Or draw using Parametric Method (Uncomment to use)
-    # draw_ellipse_parametric()
-
-    glFlush()
-
-def init():
-    glClearColor(1.0, 1.0, 1.0, 1.0)  # Set background color to white
-    glColor3f(0.0, 0.0, 0.0)          # Set draw color to black
-    gluOrtho2D(0, width, 0, height)    # Set coordinate system
-
-# Main function to setup GLUT
+def plot_symmetric_points(x,y):
+	global xc,yc
+	glVertex2f((xc+x)/SCALE,(yc+y)/SCALE)
+	glVertex2f((xc+x)/SCALE,(yc-y)/SCALE)
+	glVertex2f((xc-x)/SCALE,(yc+y)/SCALE)
+	glVertex2f((xc-x)/SCALE,(yc-y)/SCALE)
+	
+def no_plot():	
+	pass
+	
 def main():
-    glutInit()  # Initialize GLUT
-    glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB)
-    glutInitWindowSize(width, height)
-    glutCreateWindow(b"Ellipse Drawing")
-
-    init()  # Call our init function to set up OpenGL
-    glutDisplayFunc(display)  # Set display function callback
-    glutMainLoop()  # Enter the GLUT event-processing loop
-
-if __name__ == "__main__":
-    main()
-
+	glutInit(sys.argv)
+	glutInitDisplayMode(GLUT_RGB)
+	glutInitWindowSize(500,500)
+	glutInitWindowPosition(0,0)
+	global xc,yc,rx,ry
+	xc=int(input("Enter x coordinate of the centre:"))
+	yc=int(input("Enter y coordinate of the centre:"))
+	rx=int(input("Enter the length of semimajor axis:"))
+	ry=int(input("Enter the length of semiminor axis:"))
+	choice=int(input("Enter the option\n1)Polar Ellipse Algorithm\n2)Non Polar Ellipse algorithm\n"))
+	if choice==1:
+		glutCreateWindow("Polar Ellipse drawing algorithm")
+		glutDisplayFunc(polar_ellipse)
+	elif choice==2:
+		glutCreateWindow("Non Polar Ellipse drawing algorithm")
+		glutDisplayFunc(nonpolar_ellipse)
+	else:
+		print("Invalid option!")
+		glutCreateWindow("Invalid Option")
+		glutDisplayFunc(no_plot)
+	glutMainLoop()
+main()
+	
+	
+	
+	
+	
+	
+	
+	
